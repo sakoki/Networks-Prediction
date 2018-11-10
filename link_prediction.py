@@ -1,7 +1,7 @@
 # Import Libraries
 import pandas as pd
 import numpy as np
-# import networkx as nx
+import networkx as nx
 import igraph
 import time
 import sys
@@ -99,7 +99,7 @@ def generate_accompanied_groups(adj_list):
 
 if name == '__main__':
     
-    if 'adjacency_list.txt' not in os.listdir():
+    if '../data/adjacency_list.txt' not in os.listdir():
         print('adjacency_list.txt file was not found. Proceed to create this file? (Y/N)')
         
         if sys.argv[1] == 'Y': 
@@ -107,14 +107,14 @@ if name == '__main__':
             
             start_time = time.time() 
             
-            with open("./network.tsv", 'rb') as f:
+            with open("../data/network.tsv", 'rb') as f:
                 grph = nx.read_edgelist(path=f, delimiter='\t', encoding='utf8')
             
             end_time = time.time()
             
             print("Network graph created. Process took {:.04f} seconds".format(end_time - start_time))
             
-            # Write save save adjacency list 
+            # Write and save adjacency list 
             print('Saving network as an adjacency list...')
             
             adj_list_to_file(grph, './adjacency_list.txt')
