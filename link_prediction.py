@@ -392,7 +392,7 @@ class TestFilter(unittest.TestCase):
         self.assertEqual(generate_node_pairs(self.acc_group_2, self.inv_list, self.threshold), self.pair_node)
 
 
-if name == '__main__':
+if __name__ == '__main__':
 
     unittest.main(verbosity=2)
     sys.exit()
