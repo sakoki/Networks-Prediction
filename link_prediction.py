@@ -3,8 +3,9 @@ import pandas as pd
 import numpy as np
 import networkx as nx
 import time
-import sys
+import os
 import unittest
+
 
 # The following function adj_list_to_file is taken and modified from
 # stack overflow: https://stackoverflow.com/questions/34917550/write
@@ -394,46 +395,36 @@ class TestFilter(unittest.TestCase):
 
 if __name__ == '__main__':
 
-    unittest.main(verbosity=2)
-    sys.exit()
+    # Uncomment the following to run test
+    # unittest.main(verbosity=2)
+    # sys.exit()
 
-    if '../data/adjacency_list.txt' not in os.listdir():
-        print('adjacency_list.txt file was not found. Proceed to \
-            create this file? (Y/N)')
+    if 'adjacency_list.txt' not in os.listdir('../data/'):
+        print('adjacency_list.txt file was not found. Proceedng to create the file')
 
-        if sys.argv[0] == 'Y':
+        print('Creating network graph. Reading edgelist from network.tsv file (may take 5-10 min)...')
 
-            print('Creating network graph. Reading edgelist from \
-                network.tsv file (may take 5-10 min)...')
+        start_time = time.time()
 
-            start_time = time.time()
+        with open("../data/network.tsv", 'rb') as f:
+            grph = nx.read_edgelist(path=f,
+                                    delimiter='\t',
+                                    encoding='utf8')
 
-            with open("../data/network.tsv", 'rb') as f:
-                grph = nx.read_edgelist(path=f,
-                                        delimiter='\t',
-                                        encoding='utf8')
+        end_time = time.time()
 
-            end_time = time.time()
+        print("Network graph created. Process took {:.04f} seconds".format(end_time - start_time))
 
-            print("Network graph created. Process took {:.04f} \
-                seconds".format(end_time - start_time))
+        # Write and save adjacency list
+        print('Saving network as an adjacency list...')
+        adj_list_to_file(grph, './adjacency_list.txt')
+        print('\'adjacency_list.txt\' was successfully created!')
 
-            # Write and save adjacency list
-            print('Saving network as an adjacency list...')
-            adj_list_to_file(grph, './adjacency_list.txt')
-            print('\'adjacency_list.txt\' was successfully \
-                created!')
-
-        if sys.argv[0] == 'N':
-            print('Exiting program')
-            sys.exit()
-
-    print('Reading \'adjacency_list.txt\' file and creating a \
-        dictionary...')
+    print('Reading \'adjacency_list.txt\' file and creating a dictionary...')
 
     adj_list = {}
 
-    with open('./adjacency_list.txt', 'r') as f:
+    with open('../data/adjacency_list.txt', 'r') as f:
         # For each line in the file, create a dictionary that has a
         # key = node and value = edges
         for line in f:
@@ -512,11 +503,14 @@ if __name__ == '__main__':
 
     print('\'predicted_links.txt\' was successfully created!')
 
+    print('Running checks on output...')
+
     # Check that results don't exist in adj_list already. In other
     # words, they are newly inferred links. If all links are valid
     # nothing will be printed.
     for i in predicted_links:
         if str(i[1]) in adj_list.get(str(i[0]), 0):
-            print('Link between {} and {} already exists! This link \
-                is not a valid prediction.'.format(i[0], i[1]))
+            print('Link between {} and {} already exists! This link is not a valid prediction.'.format(i[0], i[1]))
+
+    print('Checks complete!')
 
