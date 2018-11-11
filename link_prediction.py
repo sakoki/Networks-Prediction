@@ -477,7 +477,7 @@ if __name__ == '__main__':
     # From the candidate nodes, sort them by highest CN, then find
     # the pairs that are not already connected.
     # limit output to 50000 potential links
-    limit = 500000
+    limit = 50000
     print('Finding the {} most likely node pairs...'.format(limit))
 
     # Load candidate nodes as pandas dataframe
