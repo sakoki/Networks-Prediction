@@ -264,10 +264,10 @@ def generate_node_pairs(acc_group, adj_list, L):
 
     :param acc_group: accompanied groups
     :type acc_group: dict
-    :param adj_list: adjacency list filtered by lemma1 and lemma2
+    :param adj_list: inverted adjacency list
     :type adj_list: dict
     :return: node pairs and CN values
-    :rtype: dict
+    :rtype: list
     '''
 
     node_pairs = {}
@@ -287,7 +287,7 @@ def generate_node_pairs(acc_group, adj_list, L):
     return filtered_node_pairs
 
 
-def link_prediction(adj_list, c_pairs, limit=50000):
+def link_prediction(c_pairs, adj_list, limit):
     '''Infer the most likely links between nodes in static network
 
     This function infers the mostly likely links between nodes
@@ -309,10 +309,9 @@ def link_prediction(adj_list, c_pairs, limit=50000):
 
     for i, r in c_pairs.iterrows():
         if count <= limit:
-            if adj_list.get(r[0], 0):
-                print(adj_list[r[0]])
-                if r[1] in adj_list[r[0]]:
-                    continue
+            # keys in the adj_list dict are string type
+            if str(r[1]) in adj_list.get(str(r[0]), 0):
+                continue
             else:
                 predictions.append((r[0], r[1]))
                 count += 1
@@ -320,112 +319,18 @@ def link_prediction(adj_list, c_pairs, limit=50000):
     return predictions
 
 
-if name == '__main__':
+def save_predicted_links(predicted_links, file_name):
+    '''Save predicted link as text file
 
-    if '../data/adjacency_list.txt' not in os.listdir():
-        print('adjacency_list.txt file was not found. Proceed to \
-            create this file? (Y/N)')
+    :params predicted_links: predicted node pairs
+    :type predicted_links: nested list
+    :params file_name: file name and save location
+    :type file_name: str
+    '''
 
-        if sys.argv[1] == 'Y':
-
-            print('Creating network graph. Reading edgelist from \
-                network.tsv file (takes 5-10 min)...')
-
-            start_time = time.time()
-
-            with open("../data/network.tsv", 'rb') as f:
-                grph = nx.read_edgelist(path=f,
-                                        delimiter='\t',
-                                        encoding='utf8')
-
-            end_time = time.time()
-
-            print("Network graph created. Process took {:.04f} \
-                seconds".format(end_time - start_time))
-
-            # Write and save adjacency list
-            print('Saving network as an adjacency list...')
-            adj_list_to_file(grph, './adjacency_list.txt')
-            print('\'adjacency_list.txt\' file is successfully \
-                created!')
-
-        if sys.argv[1] == 'N':
-            print('Exiting program')
-            sys.exit()
-
-    print('Reading \'adjacency_list.txt\' file and creating \
-        dictionary...')
-
-    adj_list = {}
-
-    with open('./adjacency_list.txt', 'r') as f:
-        # For each line in the file, create a dictionary that has a
-        # key = node and value = edges
-        for line in f:
-            adj_list[line.split(',')[0]] = line.split(',')[1].\
-            rstrip().split(' ')
-
-    print('Dictionary created!')
-
-    # Define Threshold
-    L = 50
-
-    print('Finding candidate nodes at threshold L = {}'.format(L))
-
-    print("Step 1: Filter adjacency list")
-    f_adj_list = filter_by_lemma1(adj_list, L)
-
-    print("Step 2: Invert adjacency list")
-    inv_adj_list = invert_adjacency_list(f_adj_list)
-
-    # Clear Variables
-    f_adj_list = None
-
-    print("Step 3: Create accompanied groups")
-    acc_groups = generate_accompanied_groups(inv_adj_list)
-
-    print("Step 4: Filter accompanied groups")
-    f_acc_groups = filter_by_lemma2(acc_groups, L)
-
-    # Clear variables
-    acc_groups = None
-
-    candidate_node_pairs = generate_node_pairs(f_acc_groups,
-                                               inv_adj_list,
-                                               L)
-
-    print("*****Done*****")
-
-    # Clear variables
-    f_acc_groups = None
-    inv_adj_list = None
-
-    # Save output
-    print('Saving candidate pairs as csv file...')
-    save_candidate_pairs(candidate_node_pairs,
-                        '../data/candidate_pairs.csv')
-
-    print('*****Done*****')
-
-    # From the candidate nodes, sort them by highest CN, then find
-    # the pairs that are not already connected.
-    print('Finding top {} most likely node pairs...'.format())
-
-
-    # Open candidate nodes as pandas dataframe
-    candidate_nodes = pd.read_csv('../data/candidate_pairs.csv',
-                              dtype={'node1': np.int32,
-                                     'node2': np.int32,
-                                     'CN': np.int32})
-
-    # Sort by CN value
-    candidate_nodes.sort_values('CN', inplace=True, ascending=False)
-
-
-
-
-
-
+    with open(file_name, "w") as f:
+        for i in predicted_links:
+            f.write('{} {}\n'.format(i[0], i[1]))
 
 
 class TestFilter(unittest.TestCase):
@@ -486,5 +391,132 @@ class TestFilter(unittest.TestCase):
     def test_pair_node(self):
         self.assertEqual(generate_node_pairs(self.acc_group_2, self.inv_list, self.threshold), self.pair_node)
 
-if __name__ == '__main__':
-    unittest.main(argv=['first-arg-is-ignored'], exit=False)
+
+if name == '__main__':
+
+    unittest.main(verbosity=2)
+    sys.exit()
+
+    if '../data/adjacency_list.txt' not in os.listdir():
+        print('adjacency_list.txt file was not found. Proceed to \
+            create this file? (Y/N)')
+
+        if sys.argv[0] == 'Y':
+
+            print('Creating network graph. Reading edgelist from \
+                network.tsv file (may take 5-10 min)...')
+
+            start_time = time.time()
+
+            with open("../data/network.tsv", 'rb') as f:
+                grph = nx.read_edgelist(path=f,
+                                        delimiter='\t',
+                                        encoding='utf8')
+
+            end_time = time.time()
+
+            print("Network graph created. Process took {:.04f} \
+                seconds".format(end_time - start_time))
+
+            # Write and save adjacency list
+            print('Saving network as an adjacency list...')
+            adj_list_to_file(grph, './adjacency_list.txt')
+            print('\'adjacency_list.txt\' was successfully \
+                created!')
+
+        if sys.argv[0] == 'N':
+            print('Exiting program')
+            sys.exit()
+
+    print('Reading \'adjacency_list.txt\' file and creating a \
+        dictionary...')
+
+    adj_list = {}
+
+    with open('./adjacency_list.txt', 'r') as f:
+        # For each line in the file, create a dictionary that has a
+        # key = node and value = edges
+        for line in f:
+            adj_list[line.split(',')[0]] = line.split(',')[1].\
+            rstrip().split(' ')
+
+    print('Dictionary created!')
+
+    # Define Threshold
+    L = 50
+
+    print('Finding candidate nodes at threshold L = {}...'.format(L))
+
+    # Generate candidate node pairs
+    print("Step 1: Filter adjacency list")
+    f_adj_list = filter_by_lemma1(adj_list, L)
+
+    print("Step 2: Invert adjacency list")
+    inv_adj_list = invert_adjacency_list(f_adj_list)
+
+    # Clear Variables
+    f_adj_list = None
+
+    print("Step 3: Create accompanied groups")
+    acc_groups = generate_accompanied_groups(inv_adj_list)
+
+    print("Step 4: Filter accompanied groups")
+    f_acc_groups = filter_by_lemma2(acc_groups, L)
+
+    # Clear variables
+    acc_groups = None
+
+    candidate_node_pairs = generate_node_pairs(f_acc_groups,
+                                               inv_adj_list,
+                                               L)
+
+    print("Candidate node pairs generated!")
+
+    # Clear variables
+    f_acc_groups = None
+    inv_adj_list = None
+
+    # Save output
+    print('Saving candidate pairs as csv file...')
+    save_candidate_pairs(candidate_node_pairs,
+                        '../data/candidate_pairs.csv')
+
+    print('\'candidate_pairs.csv\' was successfully created!')
+
+    # From the candidate nodes, sort them by highest CN, then find
+    # the pairs that are not already connected.
+    # limit output to 50000 potential links
+    limit = 500000
+    print('Finding the {} most likely node pairs...'.format(limit))
+
+    # Load candidate nodes as pandas dataframe
+    candidate_nodes = pd.read_csv('../data/candidate_pairs.csv',
+                              dtype={'node1': np.int32,
+                                     'node2': np.int32,
+                                     'CN': np.int32})
+
+    # Sort by CN value
+    candidate_nodes.sort_values('CN', inplace=True, ascending=False)
+
+    # Predict most likey links
+    predicted_links = link_prediction(candidate_nodes,
+                                      adj_list,
+                                      limit)
+
+    print('Predictons complete!')
+
+    # Save output
+    print('Saving predictions as text file...')
+    save_predicted_links(predicted_links,
+                         '../data/predicted_links.txt')
+
+    print('\'predicted_links.txt\' was successfully created!')
+
+    # Check that results don't exist in adj_list already. In other
+    # words, they are newly inferred links. If all links are valid
+    # nothing will be printed.
+    for i in predicted_links:
+        if str(i[1]) in adj_list.get(str(i[0]), 0):
+            print('Link between {} and {} already exists! This link \
+                is not a valid prediction.'.format(i[0], i[1]))
+
