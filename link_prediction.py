@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 import networkx as nx
-import igraph
+# import igraph
 import time
 import sys
 import unittest
@@ -97,6 +97,59 @@ def generate_accompanied_groups(adj_list):
     return acc_group
 
 
+def filter_accompanied_groups(acc_group, L):
+    '''
+    Filter accompanied groups by threshold L.
+    
+    :params acc_group: accompanied groups 
+    :type acc_group: dict
+    :params L: threshold for common neighbors 
+    :type L: int
+    :return: accompanied groups greater than L
+    :rtype: dict
+    '''
+    
+    f_acc_group = {}
+    
+    # Filter by L
+    for k, v in acc_group.items():
+        if len(v) > L:
+            f_acc_group[k] = v
+    
+    return f_acc_group
+
+
+def generate_node_pairs(acc_group, adj_list, L):
+    '''
+    Accept filtered accompanied groups and generate node pairs and
+    corresponding common neighbor values.
+    
+    :params acc_group: accompanied groups
+    :type acc_group: dict
+    :params adj_list: adjacency list filtered by lemma1 and lemma2 
+    :type adj_list: dict
+    :return: node pairs and CN values
+    :rtype: dict
+    '''
+
+    node_pairs = {}
+    
+    for k, v in acc_group.items():
+        for i in v:
+            # Read adjaceny list up to size 
+            for j in adj_list[i[0]][:i[1]]:
+                node_pairs[(k, j)] = node_pairs.get((k, j), 0) + 1 
+    
+    f_node_pairs = []
+    
+    for k, v in node_pairs.items():
+        # Filter out node pairs with CN below threshold
+        if v > L: 
+            filtered_node_pairs.append([k, v])
+    
+    return filtered_node_pairs
+
+
 if name == '__main__':
     
     if '../data/adjacency_list.txt' not in os.listdir():
@@ -111,14 +164,11 @@ if name == '__main__':
                 grph = nx.read_edgelist(path=f, delimiter='\t', encoding='utf8')
             
             end_time = time.time()
-            
             print("Network graph created. Process took {:.04f} seconds".format(end_time - start_time))
             
             # Write and save adjacency list 
             print('Saving network as an adjacency list...')
-            
             adj_list_to_file(grph, './adjacency_list.txt')
-            
             print('\'adjacency_list.txt\' file is successfully created!')
         
         if sys.argv[0] == 'N':
@@ -135,3 +185,5 @@ if name == '__main__':
             adj_list[line.split(',')[0]] = line.split(',')[1].rstrip().split(' ')
                         
     print('Dictionary created!')
+    
+    
