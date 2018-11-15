@@ -336,7 +336,6 @@ def save_predicted_links(predicted_links, file_name):
 
 class TestFilter(unittest.TestCase):
 
-    # Run before every single test
     def setUp(self):
         self.threshold = 3
 
