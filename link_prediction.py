@@ -1,3 +1,6 @@
+# Author: Koki Sasagawa
+# Date: 11/14/2018
+
 # Import Libraries
 import pandas as pd
 import numpy as np
@@ -7,17 +10,23 @@ import os
 import unittest
 
 
-# The following function adj_list_to_file is taken and modified from
-# stack overflow: https://stackoverflow.com/questions/34917550/write
-# -a-graph-into-a-file-in-an-adjacency-list-form-mentioning-all-
-# neighbors-of
+# This function was created using the following example on stackoverflow
+# as reference:
+#
+# Stack Overflow. (n.d.). Write a Graph into a file in an adjacency list
+# form [mentioning all neighbors of each node in each line] [online]
+# Available at: https://stackoverflow.com/questions/34917550/write-a-
+# graph-into-a-file-in-an-adjacency-list-form-mentioning-all-neighbors-of
+# [Accessed 18 Dec. 2018].
+
 def adj_list_to_file(G, file_name):
     '''Create adjacency list and save as text file
 
-    :params G: network graph
-    :type G: networkx graph
-    :params file_name: file name and save location
+    :params graph: network graph
+    :type graph: networkx.classes.graph.Graph
+    :params file_name: file name and location to be saved
     :type file_name: str
+    :returns: adjacency list as text file
     '''
 
     with open(file_name, "w") as f:
@@ -32,9 +41,10 @@ def save_candidate_pairs(c_pairs, file_name):
     '''Save candidate pairs as csv file
 
     :params c_pairs: candidate node pairs
-    :type c_pairs: nested list
+    :type c_pairs: list of tuple of ((int, int), int)
     :params file_name: file name and save location
     :type file_name: str
+    :returns: candidate pairs as csv file
     '''
 
     with open(file_name, "w") as f:
@@ -81,11 +91,11 @@ def filter_by_lemma1(adj_list, L):
      4: [0, 1, 3, 6]}
 
     :param adj_list: adjacency list
-    :type adj_list: dict
+    :type adj_list: dict of {int : list of int}
     :param L: threshold for common neighbors
     :type L: int
-    :return: adjacency list containing nodes with more than L neighbors
-    :rtype: dict
+    :returns: adjacency list containing nodes with more than L neighbors
+    :rtype: dict of {int : list of int}
     '''
 
     adj_new = {}
@@ -98,7 +108,7 @@ def filter_by_lemma1(adj_list, L):
 
 
 def invert_adjacency_list(adj_list):
-    '''Invert the adjacency matrix.
+    '''Invert the adjacency matrix
 
     For example, the following is an adjacency list represented as a
     python dictionary. The key is a node, and the value is a list of
@@ -125,9 +135,9 @@ def invert_adjacency_list(adj_list):
      7: [0, 1, 3]}
 
     :param adj_list: adjacency list
-    :type adj_list: dict
-    :return: inverted adjacency list
-    :rtype: dict
+    :type adj_list: dict of {int : list of int}
+    :returns: inverted adjacency list
+    :rtype: dict of {int : list of int}
     '''
 
     adj_inv = {}
@@ -169,11 +179,11 @@ def generate_accompanied_groups(adj_list):
      4: [(1, 2), (0, 2), (3, 1), (6, 2)]}
 
     :param adj_list: inverted adjacency list
-    :type adj_list: dict
+    :type adj_list: dict of {int : list of int}
     :param L: threshold for common neighbors
     :type L: int
-    :return: accompanied groups in (adress, size) representation
-    :rtype: dict
+    :returns: accompanied groups in (adress, size) representation
+    :rtype: dict of {int: list of tuple of (int, int)}
     '''
 
     acc_group = {}
@@ -213,11 +223,11 @@ def filter_by_lemma2(acc_group, L):
      4: [(1, 2), (0, 2), (3, 1), (6, 2)]}
 
     :param acc_group: accompanied groups
-    :type acc_group: dict
+    :type acc_group: dict of {int: list of tuple of (int, int)}
     :param L: threshold for common neighbors
     :type L: int
-    :return: accompanied groups greater than L
-    :rtype: dict
+    :returns: accompanied groups greater than L
+    :rtype: dict of {int: list of tuple of (int, int)}
     '''
 
     f_acc_group = {}
@@ -231,7 +241,7 @@ def filter_by_lemma2(acc_group, L):
 
 
 def generate_node_pairs(acc_group, adj_list, L):
-    '''Generate node pairs with CN greater than L.
+    '''Generate node pairs with CN greater than L
 
     For example, the following is a python dictionary representing
     the accompanied groups of a network.
@@ -264,11 +274,11 @@ def generate_node_pairs(acc_group, adj_list, L):
      4 | 1 | 1 | 1 | 1 |
 
     :param acc_group: accompanied groups
-    :type acc_group: dict
+    :type acc_group: dict of {int: list of tuple of (int, int)}
     :param adj_list: inverted adjacency list
-    :type adj_list: dict
-    :return: node pairs and CN values
-    :rtype: list
+    :type adj_list: dict of {int : list of int}
+    :returns: node pairs and CN values
+    :rtype: list of tuple of ((int, int), int)
     '''
 
     node_pairs = {}
@@ -294,14 +304,14 @@ def link_prediction(c_pairs, adj_list, limit):
     This function infers the mostly likely links between nodes
     based on the number of common neighbors.
 
-    :params adj_list: adjacency list
-    :type adj_list: dict
     :params c_pairs: candidate node pairs
     :type c_pairs: pandas dataframe
+    :params adj_list: adjacency list
+    :type adj_list: dict of {int : list of int}
     :params limit: limit number of results returned
     :type limit: int
-    :return: predicted links between nodes
-    :rtype: list
+    :returns: predicted links between nodes
+    :rtype: list of tuple of (int, int)
     '''
 
     predictions = []
@@ -321,12 +331,13 @@ def link_prediction(c_pairs, adj_list, limit):
 
 
 def save_predicted_links(predicted_links, file_name):
-    '''Save predicted link as text file
+    '''Save predicted links as text file
 
-    :params predicted_links: predicted node pairs
-    :type predicted_links: nested list
+    :params pred_links: predicted links
+    :type pred_links:  list of tuple of (int, int)
     :params file_name: file name and save location
     :type file_name: str
+    :returns: predicted links as textfile
     '''
 
     with open(file_name, "w") as f:
