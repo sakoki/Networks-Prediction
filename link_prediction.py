@@ -523,4 +523,3 @@ if __name__ == '__main__':
             print('Link between {} and {} already exists! This link is not a valid prediction.'.format(i[0], i[1]))
 
     print('Checks complete!')
-
