@@ -233,7 +233,7 @@ def generate_node_pairs(acc_group, adj_list, L):
 
     :param acc_group: accompanied groups
     :type acc_group: dict of {int: list of tuple of (int, int)}
-    :param adj_list: inverted adjacency list
+    :param adj_list: adjacency list
     :type adj_list: dict of {int : list of int}
     :returns: node pairs and CN values
     :rtype: list of tuple of ((int, int), int)

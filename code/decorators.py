@@ -2,7 +2,7 @@ import functools
 import time
 
 def timer(func):
-	"""Prints the runtime of decorated function"""
+	'''Prints the runtime of decorated function'''
 	@functools.wraps(func)
 	def wrap_timer(*args, **kwargs):
 		print('Running {}...'.format(func.__name__))
