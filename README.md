@@ -8,7 +8,7 @@ For link prediction and attribute prediction, the following 3 libraries were use
 - Numpy
 - Networkx
 
-Other libraries such as time, os, and pprint were used for developmental purposes. Additionally, for the link prediction algorithms, the paper “Bounded link prediction in very large networks” by Cui et al. (2016) was used as a reference for developing and implementing the fast algorithm for calculating common neighbors (CN) on very large networks. Some functions were written with the assistance of stack overflow, which is referenced directly in the code comments. 
+For the link prediction algorithms, the paper “Bounded link prediction in very large networks” by Cui et al. (2016) was used as a reference for developing and implementing the fast algorithm for calculating common neighbors (CN) on very large networks. Some functions were written with the assistance of stack overflow, which is referenced directly in the code comments. 
 
 ## My Approach:
 
