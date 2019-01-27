@@ -1,4 +1,8 @@
+# Author: Koki Sasagawa
+# Date: 11/14/2018
+
 import networkx as nx
+
 
 def candidate_node(test_set, grph, algo_type):
     '''Finds most likely candidate node to inherit attributes from
