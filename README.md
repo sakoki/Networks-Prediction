@@ -25,7 +25,7 @@ For the second task of attribute prediction, three functions were created to cal
 | Jaccard           | 0.75674                     |
 | Adamic/Adar       | 0.75892                     |
 | Jaccard + Preferential Attachment | 0.78257     |
-| Adamic/Adar + Preferential Attachment | 0.78475 | 
+| Adamic/Adar + Preferential Attachment | 0.814   | 
 
 ## Sources
 
